@@ -1,0 +1,11 @@
+services:
+  dbhost:
+    image: postgres:16.4-alpine3.20
+    environment:
+      POSTGRES_USER: hop
+      POSTGRES_PASSWORD: hop
+      POSTGRES_DB: hop
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
