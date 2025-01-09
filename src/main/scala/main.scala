@@ -81,6 +81,20 @@ object main {
       attributesSchema
     )
     attributesDF.createTempView("v_attributes")
+    attributesDF.show(10, truncate = false)
+
+    val attributesDataUnion = attributesNames.map { name =>
+      businessJsonFileData.sqlContext.sql(
+        s"""
+          SELECT business_id, attribute_id, business.attributes['$name'] as attribute_value
+          FROM business
+          JOIN v_attributes ON '$name' = v_attributes.attribute_name
+          WHERE attributes['$name'] IS NOT NULL
+        """
+      )
+    }
+    val attributesDataUnionDF = attributesDataUnion.reduce(_ union _)
+    attributesDataUnionDF.show(10, truncate = false)
 
     val jdbcUrl = "jdbc:postgresql://localhost:5432/hop"
     val connectionProperties = new java.util.Properties()
@@ -98,6 +112,12 @@ object main {
     attributesDF.write
       .mode("append")
       .jdbc(jdbcUrl, "attributes", connectionProperties)
+    println("Data written to the database")
+
+    println("Writing " + attributesDataUnionDF.count() + " rows to the database [attributes]")
+    attributesDataUnionDF.write
+      .mode("append")
+      .jdbc(jdbcUrl, "business_facts", connectionProperties)
     println("Data written to the database")
   }
 }
