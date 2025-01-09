@@ -37,5 +37,6 @@ create table business_facts
     attribute_id    integer,
     attribute_value text,
     foreign key (business_id) references business (business_id),
-    foreign key (attribute_id) references attributes (attribute_id)
+    foreign key (attribute_id) references attributes (attribute_id),
+    primary key (business_id, attribute_id)
 );
