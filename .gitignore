@@ -49,3 +49,4 @@ build/
 
 data/
 !data/.gitkeep
+!data/sql/
