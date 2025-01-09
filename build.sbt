@@ -8,7 +8,8 @@ scalaVersion := "2.12.17"
 // Spark dependencies
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % "3.4.1",
-  "org.apache.spark" %% "spark-sql" % "3.4.1"
+  "org.apache.spark" %% "spark-sql" % "3.4.1",
+  "org.postgresql" % "postgresql" % "42.7.2"
 )
 
 // Add a repository for Spark dependencies (optional if not in default repos)
