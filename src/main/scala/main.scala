@@ -1,11 +1,7 @@
-import org.apache.log4j.Logger
 import org.apache.spark.sql.{Row, SparkSession}
-import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 
 object main {
-  Logger.getLogger("org").setLevel(org.apache.log4j.Level.OFF)
-
   def main(args: Array[String]): Unit = {
     val spark = SparkSession.builder.appName("Main ETL Pipeline").master("local").getOrCreate()
     val businessJsonFile = "data/yelp_academic_dataset_business.json"
@@ -52,8 +48,8 @@ object main {
     val businessData = businessJsonFileData.sqlContext.sql(
       """
         SELECT
-         business_id, address, city, categories, is_open,
-         latitude, longitude, name, postal_code, review_count, stars, state, hours.*
+         business_id, address, categories, is_open,
+         latitude, longitude, name, postal_code, review_count, stars, hours.*
         FROM business
       """
     )
@@ -94,7 +90,36 @@ object main {
       )
     }
     val attributesDataUnionDF = attributesDataUnion.reduce(_ union _)
+    attributesDataUnionDF.createTempView("v_attributes_data_union")
     attributesDataUnionDF.show(10, truncate = false)
+
+    val geolocData = businessData.sqlContext.sql(
+      """
+         WITH geoloc AS (
+          SELECT DISTINCT state, city
+          FROM business
+          WHERE city != ''
+         )
+         SELECT ROW_NUMBER() OVER (ORDER BY state, city) AS geolocation_id, state, city
+         FROM geoloc
+      """
+    )
+    geolocData.createTempView("v_geoloc")
+    geolocData.show(10, truncate = false)
+
+    val businessFacts = businessData.sqlContext.sql(
+      """
+         SELECT
+          v_attributes_data_union.business_id,
+          v_geoloc.geolocation_id,
+          v_attributes_data_union.attribute_id,
+          v_attributes_data_union.attribute_value
+         FROM business
+         JOIN v_attributes_data_union ON business.business_id = v_attributes_data_union.business_id
+         JOIN v_geoloc ON business.state = v_geoloc.state AND business.city = v_geoloc.city
+      """
+    )
+    businessFacts.show(10, truncate = false)
 
     val jdbcUrl = "jdbc:postgresql://localhost:5432/hop"
     val connectionProperties = new java.util.Properties()
@@ -106,16 +131,19 @@ object main {
     businessData.write
       .mode("append")
       .jdbc(jdbcUrl, "business", connectionProperties)
-    println("Data written to the database")
 
     println("Writing " + attributesDF.count() + " rows to the database [attributes]")
     attributesDF.write
       .mode("append")
       .jdbc(jdbcUrl, "attributes", connectionProperties)
-    println("Data written to the database")
 
-    println("Writing " + attributesDataUnionDF.count() + " rows to the database [attributes]")
-    attributesDataUnionDF.write
+    println("Writing " + geolocData.count() + " rows to the database [geolocation]")
+    geolocData.write
+      .mode("append")
+      .jdbc(jdbcUrl, "geolocation", connectionProperties)
+
+    println("Writing " + businessFacts.count() + " rows to the database [business_facts]")
+    businessFacts.write
       .mode("append")
       .jdbc(jdbcUrl, "business_facts", connectionProperties)
     println("Data written to the database")

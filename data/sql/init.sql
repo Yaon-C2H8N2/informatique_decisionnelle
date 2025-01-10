@@ -4,7 +4,6 @@ create table business
         constraint business_pk
             primary key,
     address      text,
-    city         text,
     categories   text,
     is_open      bigint,
     latitude     double precision,
@@ -13,7 +12,6 @@ create table business
     postal_code  text,
     review_count bigint,
     stars        double precision,
-    state        text,
     "Friday"     text,
     "Monday"     text,
     "Saturday"   text,
@@ -28,15 +26,24 @@ create table attributes
     attribute_id   integer not null
         constraint attributes_pk
             primary key,
-    attribute_name text not null
+    attribute_name text    not null
+);
+
+create table geolocation
+(
+    geolocation_id integer primary key,
+    state          text,
+    city           text
 );
 
 create table business_facts
 (
     business_id     text,
     attribute_id    integer,
+    geolocation_id  integer,
     attribute_value text,
     foreign key (business_id) references business (business_id),
     foreign key (attribute_id) references attributes (attribute_id),
-    primary key (business_id, attribute_id)
+    foreign key (geolocation_id) references geolocation (geolocation_id),
+    primary key (business_id, attribute_id, geolocation_id)
 );
