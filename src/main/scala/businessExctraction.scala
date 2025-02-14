@@ -3,7 +3,7 @@ import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructT
 
 object businessExctraction {
   def runPipeline(): Unit = {
-    val spark = SparkSession.builder.appName("Main ETL Pipeline").master("local").getOrCreate()
+    val spark = SparkSession.builder.appName("Main ETL Pipeline").master("local[*]").getOrCreate()
     val businessJsonFile = "data/yelp_academic_dataset_business.json"
 
     val businessJsonFileData = spark.read.json(businessJsonFile)
@@ -55,44 +55,6 @@ object businessExctraction {
     )
     businessData.createTempView("v_business")
 
-    val attributesData = businessJsonFileData.sqlContext.sql(
-      """
-        SELECT attributes.*
-        FROM business
-      """
-    )
-    val attributesNames = attributesData.columns
-
-    val attributesSchema = StructType(Seq(
-      StructField("attribute_id", IntegerType, nullable = false),
-      StructField("attribute_name", StringType, nullable = false)
-    ))
-
-    val attributesRows = attributesNames.zipWithIndex.map { case (name, id) =>
-      Row(id, name)
-    }
-
-    val attributesDF = spark.createDataFrame(
-      spark.sparkContext.parallelize(attributesRows),
-      attributesSchema
-    )
-    attributesDF.createTempView("v_attributes")
-    attributesDF.show(10, truncate = false)
-
-    val attributesDataUnion = attributesNames.map { name =>
-      businessJsonFileData.sqlContext.sql(
-        s"""
-          SELECT business_id, attribute_id, business.attributes['$name'] as attribute_value
-          FROM business
-          JOIN v_attributes ON '$name' = v_attributes.attribute_name
-          WHERE attributes['$name'] IS NOT NULL
-        """
-      )
-    }
-    val attributesDataUnionDF = attributesDataUnion.reduce(_ union _)
-    attributesDataUnionDF.createTempView("v_attributes_data_union")
-    attributesDataUnionDF.show(10, truncate = false)
-
     val geolocData = businessData.sqlContext.sql(
       """
          WITH geoloc AS (
@@ -110,12 +72,9 @@ object businessExctraction {
     val businessFacts = businessData.sqlContext.sql(
       """
          SELECT
-          v_attributes_data_union.business_id,
-          v_geoloc.geolocation_id,
-          v_attributes_data_union.attribute_id,
-          v_attributes_data_union.attribute_value
+          business.business_id,
+          v_geoloc.geolocation_id
          FROM business
-         JOIN v_attributes_data_union ON business.business_id = v_attributes_data_union.business_id
          JOIN v_geoloc ON business.state = v_geoloc.state AND business.city = v_geoloc.city
       """
     )
@@ -131,11 +90,6 @@ object businessExctraction {
     businessData.write
       .mode("append")
       .jdbc(jdbcUrl, "business", connectionProperties)
-
-    println("Writing " + attributesDF.count() + " rows to the database [attributes]")
-    attributesDF.write
-      .mode("append")
-      .jdbc(jdbcUrl, "attributes", connectionProperties)
 
     println("Writing " + geolocData.count() + " rows to the database [geolocation]")
     geolocData.write

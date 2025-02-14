@@ -9,3 +9,15 @@ services:
       - "5432:5432"
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
+
+  python:
+    build: python
+    volumes:
+      - ./data:/data
+    environment:
+      DATA_PATH: /data/hop_public_reviews.json
+
+  metabase:
+    image: metabase/metabase:latest
+    ports:
+      - "3000:3000"

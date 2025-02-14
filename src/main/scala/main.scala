@@ -1,7 +1,11 @@
 
 object main {
   def main(args: Array[String]): Unit = {
-      businessExctraction.runPipeline()
-      checkinExtraction.runPipeline()
+//    businessExctraction.runPipeline()
+//    checkinExtraction.runPipeline()
+//    userExtraction.runPipeline()
+//    tipExtraction.runPipeline()
+//    reviewExtraction.runPipeline()
+    keywordExtraction.runPipeline()
   }
 }
