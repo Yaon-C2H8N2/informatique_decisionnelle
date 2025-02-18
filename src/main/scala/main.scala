@@ -1,11 +1,11 @@
 
 object main {
   def main(args: Array[String]): Unit = {
-//    businessExctraction.runPipeline()
+    val businessFacts = businessExctraction.runPipeline()
 //    checkinExtraction.runPipeline()
 //    userExtraction.runPipeline()
 //    tipExtraction.runPipeline()
 //    reviewExtraction.runPipeline()
-    keywordExtraction.runPipeline()
+    keywordExtraction.runPipeline(businessFacts)
   }
 }

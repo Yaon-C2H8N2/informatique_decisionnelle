@@ -21,3 +21,14 @@ services:
     image: metabase/metabase:latest
     ports:
       - "3000:3000"
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: metabase
+      MB_DB_PORT: 5432
+      MB_DB_USER: hop
+      MB_DB_PASS: hop
+      MB_DB_HOST: dbhost
+
+volumes:
+  postgres:
+  metabase:

@@ -36,11 +36,13 @@ create table business_facts
 (
     business_id    text,
     geolocation_id integer,
+    year           integer,
     review_count   bigint,
     stars          double precision,
+    keywords      text[],
     foreign key (business_id) references business (business_id),
     foreign key (geolocation_id) references geolocation (geolocation_id),
-    primary key (business_id, geolocation_id)
+    primary key (business_id, geolocation_id, year)
 );
 
 create table checkins
