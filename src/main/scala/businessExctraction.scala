@@ -1,8 +1,7 @@
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 
 object businessExctraction {
-  def runPipeline(): DataFrame = {
-    val spark = SparkSession.builder.appName("Main ETL Pipeline").master("local[*]").getOrCreate()
+  def runPipeline(spark: SparkSession): DataFrame = {
     val businessJsonFile = "data/yelp_academic_dataset_business.json"
 
     val businessJsonFileData = spark.read.json(businessJsonFile)

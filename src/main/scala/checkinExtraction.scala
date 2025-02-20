@@ -1,9 +1,8 @@
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions._
 
 object checkinExtraction {
-  def runPipeline(): Unit = {
-    val spark = SparkSession.builder.appName("Main ETL Pipeline").master("local[*]").getOrCreate()
+  def runPipeline(spark: SparkSession): DataFrame = {
     val checkinJsonFile = "data/yelp_academic_dataset_checkin.json"
 
     val checkinJsonFileData = spark.read.json(checkinJsonFile)
@@ -31,5 +30,7 @@ object checkinExtraction {
       .mode("append")
       .jdbc(jdbcUrl, "checkins", connectionProperties)
     println("Data written to the database")
+
+    return checkinDF
   }
 }

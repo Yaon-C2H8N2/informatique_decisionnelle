@@ -2,13 +2,11 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.monotonically_increasing_id
 
 object tipExtraction {
-  def runPipeline(): Unit = {
-    val spark = SparkSession.builder.appName("Main ETL Pipeline").master("local[*]").getOrCreate()
+  def runPipeline(spark: SparkSession): Unit = {
     val tipCsvFile = "data/yelp_academic_dataset_tip.csv"
 
     val tipCsvFileData = spark.read.option("header", "true").csv(tipCsvFile)
 
-    //add tip_id column
     val tipData = tipCsvFileData.withColumn("tip_id", monotonically_increasing_id())
     val tipDataWithFormattedReviewCount = tipData.withColumn("compliment_count", tipData("compliment_count").cast("int"))
     val tipDataWithFormattedDate = tipDataWithFormattedReviewCount.withColumn("date", tipDataWithFormattedReviewCount("date").cast("timestamp"))

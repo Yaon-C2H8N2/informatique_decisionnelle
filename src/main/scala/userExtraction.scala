@@ -1,9 +1,7 @@
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.functions.monotonically_increasing_id
 
 object userExtraction {
-  def runPipeline(): Unit = {
-    val spark = SparkSession.builder.appName("Main ETL Pipeline").master("local[*]").getOrCreate()
+  def runPipeline(spark: SparkSession): Unit = {
 
     val jdbcUrlSource = "jdbc:postgresql://stendhal:5432/tpid2020"
     val connectionPropertiesSource = new java.util.Properties()
