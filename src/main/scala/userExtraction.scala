@@ -1,7 +1,7 @@
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 object userExtraction {
-  def runPipeline(spark: SparkSession): Unit = {
+  def runPipeline(spark: SparkSession): DataFrame = {
 
     val jdbcUrlSource = "jdbc:postgresql://stendhal:5432/tpid2020"
     val connectionPropertiesSource = new java.util.Properties()
@@ -24,5 +24,7 @@ object userExtraction {
       .mode("append")
       .jdbc(jdbcUrlDestination, "users", connectionPropertiesDestination)
     println("Data written to the database")
+
+    return user
   }
 }

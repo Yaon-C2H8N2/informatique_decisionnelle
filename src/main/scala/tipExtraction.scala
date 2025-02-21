@@ -1,8 +1,8 @@
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions.monotonically_increasing_id
 
 object tipExtraction {
-  def runPipeline(spark: SparkSession): Unit = {
+  def runPipeline(spark: SparkSession): DataFrame = {
     val tipCsvFile = "data/yelp_academic_dataset_tip.csv"
 
     val tipCsvFileData = spark.read.option("header", "true").csv(tipCsvFile)
@@ -29,5 +29,7 @@ object tipExtraction {
       .mode("append")
       .jdbc(jdbcUrl, "tips", connectionProperties)
     println("Data written to the database")
+
+    return resTipData
   }
 }

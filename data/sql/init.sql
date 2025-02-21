@@ -1,4 +1,5 @@
 drop table if exists business_facts;
+drop table if exists users_facts;
 drop table if exists checkins;
 drop table if exists geolocation;
 drop table if exists tips;
@@ -88,4 +89,18 @@ create table tips
     user_id          text,
     foreign key (business_id) references business (business_id),
     foreign key (user_id) references users (user_id)
+);
+
+create table users_facts
+(
+    user_id          text,
+    year             integer,
+    review_count     bigint,
+    average_stars    double precision,
+    business_count   bigint,
+    reactions_count  bigint,
+    compliment_count bigint,
+    tip_count        bigint,
+    foreign key (user_id) references users (user_id),
+    primary key (user_id, year)
 );

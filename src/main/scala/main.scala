@@ -6,11 +6,12 @@ object main {
 
     val businessesData = businessExctraction.runPipeline(spark)
     val checkinsData = checkinExtraction.runPipeline(spark)
-    userExtraction.runPipeline(spark)
-    tipExtraction.runPipeline(spark)
+    val usersData = userExtraction.runPipeline(spark)
+    val tipsData = tipExtraction.runPipeline(spark)
     val reviewsData = reviewExtraction.runPipeline(spark)
     val keywordsData = keywordExtraction.runPipeline(spark, reviewsData)
 
     businessFactBuilder.runPipeline(spark, businessesData, checkinsData, reviewsData, keywordsData)
+    userFactBuilder.runPipeline(spark, usersData, reviewsData, tipsData)
   }
 }
