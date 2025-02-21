@@ -11,7 +11,7 @@ object businessExctraction {
       """
         SELECT
          business_id, address, categories, is_open,
-         latitude, longitude, name, postal_code, review_count, stars, hours.*
+         latitude, longitude, name, postal_code, hours.*
         FROM business
       """
     )
@@ -46,15 +46,15 @@ object businessExctraction {
     connectionProperties.setProperty("password", "hop")
     connectionProperties.setProperty("driver", "org.postgresql.Driver")
 
-//    println("Writing " + businessData.count() + " rows to the database [business]")
-//    businessData.write
-//      .mode("append")
-//      .jdbc(jdbcUrl, "business", connectionProperties)
-//
-//    println("Writing " + geolocData.count() + " rows to the database [geolocation]")
-//    geolocData.write
-//      .mode("append")
-//      .jdbc(jdbcUrl, "geolocation", connectionProperties)
+    println("Writing " + businessData.count() + " rows to the database [business]")
+    businessData.write
+      .mode("append")
+      .jdbc(jdbcUrl, "business", connectionProperties)
+
+    println("Writing " + geolocData.count() + " rows to the database [geolocation]")
+    geolocData.write
+      .mode("append")
+      .jdbc(jdbcUrl, "geolocation", connectionProperties)
 
     return businessFacts
   }

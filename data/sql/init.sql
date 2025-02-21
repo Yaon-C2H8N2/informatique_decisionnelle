@@ -1,8 +1,10 @@
 drop table if exists business_facts;
-drop table if exists checkin_facts;
+drop table if exists checkins;
 drop table if exists geolocation;
-drop table if exists business;
 drop table if exists tips;
+drop table if exists reviews;
+drop table if exists business;
+drop table if exists users;
 
 create table business
 (
@@ -54,6 +56,13 @@ create table checkins
     primary key (business_id, date)
 );
 
+create table users
+(
+    user_id       text primary key,
+    name          text,
+    yelping_since timestamp
+);
+
 create table reviews
 (
     review_id   text primary key,
@@ -67,13 +76,6 @@ create table reviews
     useful      integer,
     foreign key (business_id) references business (business_id),
     foreign key (user_id) references users (user_id)
-);
-
-create table users
-(
-    user_id       text primary key,
-    name          text,
-    yelping_since timestamp
 );
 
 create table tips
