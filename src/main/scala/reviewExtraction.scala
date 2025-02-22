@@ -1,3 +1,4 @@
+import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 object reviewExtraction {
@@ -16,7 +17,7 @@ object reviewExtraction {
 
     val reviews = spark.read
       .jdbc(jdbcUrlSource, "yelp.review", connectionPropertiesSource)
-      .select("review_id", "user_id", "business_id", "date", "text", "stars", "cool", "funny", "useful")
+      .select("review_id", "user_id", "business_id", "date", "stars", "cool", "funny", "useful")
     reviews.show(10, truncate = false)
 
     println("Writing " + reviews.count() + " rows to the database [reviews]")

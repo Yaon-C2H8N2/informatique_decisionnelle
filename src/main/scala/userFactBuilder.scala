@@ -10,21 +10,23 @@ object userFactBuilder {
     connectionProperties.setProperty("password", "hop")
     connectionProperties.setProperty("driver", "org.postgresql.Driver")
 
-    val reviewAgg = reviews.as("reviews").sqlContext.sql(
+    reviews.createTempView("reviews")
+    val reviewAgg = reviews.sqlContext.sql(
       """
         select
           user_id,
-          date_part('year', reviews.date) as year,
-          count(reviews.review_id) as review_count,
+          date_part('year', date) as year,
+          count(review_id) as review_count,
           round(avg(stars), 2) as average_stars,
           count(distinct business_id) as business_count,
           sum(cool + funny + useful) as reactions_count
         from reviews
-        group by user_id, date_part('year', reviews.date)
+        group by user_id, date_part('year', date)
       """
     )
 
-    val tipAgg = tips.as("tips").sqlContext.sql(
+    tips.createTempView("tips")
+    val tipAgg = tips.sqlContext.sql(
       """
         select
           user_id,

@@ -70,7 +70,6 @@ create table reviews
     user_id     text,
     business_id text,
     date        timestamp,
-    text        text,
     stars       integer,
     cool        integer,
     funny       integer,
