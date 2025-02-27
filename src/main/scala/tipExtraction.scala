@@ -2,7 +2,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions.monotonically_increasing_id
 
 object tipExtraction {
-  def runPipeline(spark: SparkSession): DataFrame = {
+  def runPipeline(spark: SparkSession, business: DataFrame): DataFrame = {
     val tipCsvFile = "data/yelp_academic_dataset_tip.csv"
 
     val tipCsvFileData = spark.read.option("header", "true").csv(tipCsvFile)
@@ -17,7 +17,7 @@ object tipExtraction {
     connectionProperties.setProperty("password", "hop")
     connectionProperties.setProperty("driver", "org.postgresql.Driver")
 
-    spark.read.jdbc(jdbcUrl, "business", connectionProperties).select("business_id").createTempView("v_business_ids")
+    business.select("business_id").createTempView("v_business_ids")
     val resTipData = tipDataWithFormattedDate
       .select("tip_id", "user_id", "business_id", "compliment_count", "date", "text")
       .join(spark.sql("SELECT business_id FROM v_business_ids"), "business_id")

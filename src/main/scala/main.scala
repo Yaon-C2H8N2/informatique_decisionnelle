@@ -7,7 +7,7 @@ object main {
     val businessesData = businessExctraction.runPipeline(spark)
     val checkinsData = checkinExtraction.runPipeline(spark)
     val usersData = userExtraction.runPipeline(spark)
-    val tipsData = tipExtraction.runPipeline(spark)
+    val tipsData = tipExtraction.runPipeline(spark, businessesData)
     val reviewsData = reviewExtraction.runPipeline(spark)
     val keywordsData = keywordExtraction.runPipeline(spark, reviewsData)
 
